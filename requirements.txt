@@ -13,3 +13,4 @@ aiofiles==24.1.0
 markdown==3.7
 itsdangerous==2.2.0
 a2wsgi==1.10.8
+greenlet==3.1.1
