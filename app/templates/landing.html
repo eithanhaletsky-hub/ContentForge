@@ -1,0 +1,145 @@
+{% extends "base.html" %}
+{% block title %}ContentForge — {{ 'יצירת תוכן שיווקי עם AI' if lang == 'he' else 'AI Marketing Content Generator' }}{% endblock %}
+
+{% block body %}
+<!-- Navbar -->
+<nav class="bg-white/80 backdrop-blur-md border-b border-gray-100 sticky top-0 z-50">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="flex justify-between h-16 items-center">
+            <div class="flex items-center gap-2">
+                <div class="w-8 h-8 gradient-bg rounded-lg flex items-center justify-center">
+                    <i data-lucide="zap" class="w-5 h-5 text-white"></i>
+                </div>
+                <span class="text-xl font-bold text-slate-800">ContentForge</span>
+            </div>
+            <div class="flex items-center gap-4">
+                <a href="/set-lang/{{ 'en' if lang == 'he' else 'he' }}" class="text-sm text-slate-500 hover:text-indigo-600 transition">
+                    {{ 'English' if lang == 'he' else 'עברית' }}
+                </a>
+                {% if user %}
+                <a href="/dashboard" class="px-4 py-2 bg-indigo-600 text-white rounded-lg text-sm font-medium hover:bg-indigo-700 transition">
+                    {{ 'לדשבורד' if lang == 'he' else 'Dashboard' }}
+                </a>
+                {% else %}
+                <a href="/auth/login" class="text-sm text-slate-600 hover:text-slate-800 transition">
+                    {{ 'התחברות' if lang == 'he' else 'Login' }}
+                </a>
+                <a href="/auth/register" class="px-4 py-2 bg-indigo-600 text-white rounded-lg text-sm font-medium hover:bg-indigo-700 transition">
+                    {{ 'הרשמה חינם' if lang == 'he' else 'Sign Up Free' }}
+                </a>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</nav>
+
+<!-- Hero Section -->
+<section class="gradient-bg text-white py-20 lg:py-32">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+        <div class="inline-flex items-center gap-2 bg-white/20 rounded-full px-4 py-1.5 text-sm mb-6">
+            <i data-lucide="sparkles" class="w-4 h-4"></i>
+            {{ 'מונע על ידי AI' if lang == 'he' else 'Powered by AI' }}
+        </div>
+        <h1 class="text-4xl md:text-6xl font-bold mb-6 leading-tight">
+            {% if lang == 'he' %}
+                צור תוכן שיווקי מקצועי<br>
+                <span class="text-yellow-300">בלחיצת כפתור</span>
+            {% else %}
+                Create Professional Marketing Content<br>
+                <span class="text-yellow-300">With One Click</span>
+            {% endif %}
+        </h1>
+        <p class="text-xl text-white/80 mb-10 max-w-2xl mx-auto">
+            {% if lang == 'he' %}
+                ContentForge משתמש בבינה מלאכותית מתקדמת כדי ליצור תוכן שיווקי מושלם — פוסטים, מיילים, מודעות, בלוגים ועוד.
+            {% else %}
+                ContentForge uses advanced AI to create perfect marketing content — posts, emails, ads, blogs and more.
+            {% endif %}
+        </p>
+        <div class="flex flex-col sm:flex-row gap-4 justify-center">
+            <a href="/auth/register" class="px-8 py-4 bg-white text-indigo-700 rounded-xl text-lg font-semibold hover:bg-gray-100 transition shadow-lg">
+                {{ 'התחל ליצור תוכן' if lang == 'he' else 'Start Creating Content' }}
+            </a>
+        </div>
+    </div>
+</section>
+
+<!-- Features -->
+<section class="py-20 bg-white">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <h2 class="text-3xl font-bold text-center text-slate-800 mb-4">
+            {{ 'מה אפשר ליצור?' if lang == 'he' else 'What Can You Create?' }}
+        </h2>
+        <p class="text-center text-slate-500 mb-12 max-w-xl mx-auto">
+            {{ '6 סוגי תוכן שיווקי שכל עסק צריך — הכל נוצר אוטומטית עם AI' if lang == 'he' else '6 types of marketing content every business needs — all generated automatically with AI' }}
+        </p>
+
+        <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {% set features = [
+                ("share-2", "פוסטים לסושיאל" if lang == "he" else "Social Posts", "צור פוסטים מושכים לאינסטגרם, פייסבוק, לינקדאין וטוויטר" if lang == "he" else "Create engaging posts for Instagram, Facebook, LinkedIn and Twitter", "bg-blue-50", "text-blue-600"),
+                ("mail", "אימיילים שיווקיים" if lang == "he" else "Marketing Emails", "כתוב אימיילים שיווקיים עם כותרות קליטות וקריאה לפעולה" if lang == "he" else "Write marketing emails with catchy subject lines and CTAs", "bg-green-50", "text-green-600"),
+                ("megaphone", "מודעות" if lang == "he" else "Advertisements", "צור מודעות לגוגל, פייסבוק ופלטפורמות נוספות" if lang == "he" else "Create ads for Google, Facebook and more", "bg-orange-50", "text-orange-600"),
+                ("file-text", "מאמרי בלוג" if lang == "he" else "Blog Articles", "כתוב מאמרים מקצועיים עם SEO מובנה" if lang == "he" else "Write professional articles with built-in SEO", "bg-purple-50", "text-purple-600"),
+                ("shopping-bag", "תיאורי מוצרים" if lang == "he" else "Product Descriptions", "תיאורים מושכים לחנויות אונליין" if lang == "he" else "Engaging descriptions for online stores", "bg-pink-50", "text-pink-600"),
+                ("user", "ביו / אודות" if lang == "he" else "Bio / About", "צור ביוגרפיה מקצועית ותיאור עסקי" if lang == "he" else "Create professional bio and business descriptions", "bg-teal-50", "text-teal-600"),
+            ] %}
+            {% for icon, title, desc, bg, color in features %}
+            <div class="p-6 rounded-2xl border border-gray-100 card-hover">
+                <div class="w-12 h-12 {{ bg }} rounded-xl flex items-center justify-center mb-4">
+                    <i data-lucide="{{ icon }}" class="w-6 h-6 {{ color }}"></i>
+                </div>
+                <h3 class="text-lg font-semibold text-slate-800 mb-2">{{ title }}</h3>
+                <p class="text-slate-500 text-sm">{{ desc }}</p>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+
+<!-- How it works -->
+<section class="py-20 bg-gray-50">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <h2 class="text-3xl font-bold text-center text-slate-800 mb-12">
+            {{ 'איך זה עובד?' if lang == 'he' else 'How Does It Work?' }}
+        </h2>
+        <div class="grid md:grid-cols-3 gap-8">
+            {% set steps = [
+                ("1", "בחר סוג תוכן" if lang == "he" else "Choose Content Type", "בחר מתוך 6 סוגי תוכן שיווקי שונים" if lang == "he" else "Choose from 6 different marketing content types"),
+                ("2", "מלא פרטים" if lang == "he" else "Fill In Details", "ספר לנו על העסק, הנושא והקהל שלך" if lang == "he" else "Tell us about your business, topic and audience"),
+                ("3", "קבל תוכן מוכן" if lang == "he" else "Get Ready Content", "ה-AI יוצר תוכן מקצועי תוך שניות" if lang == "he" else "AI creates professional content in seconds"),
+            ] %}
+            {% for num, title, desc in steps %}
+            <div class="text-center">
+                <div class="w-16 h-16 gradient-bg rounded-2xl flex items-center justify-center mx-auto mb-4 text-white text-2xl font-bold">
+                    {{ num }}
+                </div>
+                <h3 class="text-lg font-semibold text-slate-800 mb-2">{{ title }}</h3>
+                <p class="text-slate-500 text-sm">{{ desc }}</p>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+
+<!-- CTA -->
+<section class="py-20 gradient-bg text-white text-center">
+    <div class="max-w-3xl mx-auto px-4">
+        <h2 class="text-3xl font-bold mb-4">
+            {{ 'מוכן להתחיל ליצור תוכן?' if lang == 'he' else 'Ready to Start Creating Content?' }}
+        </h2>
+        <p class="text-white/80 mb-8">
+            {{ 'הירשם עכשיו בחינם והתחל ליצור תוכן שיווקי מקצועי' if lang == 'he' else 'Sign up now for free and start creating professional marketing content' }}
+        </p>
+        <a href="/auth/register" class="inline-block px-8 py-4 bg-white text-indigo-700 rounded-xl text-lg font-semibold hover:bg-gray-100 transition shadow-lg">
+            {{ 'הרשמה חינם' if lang == 'he' else 'Sign Up Free' }}
+        </a>
+    </div>
+</section>
+
+<!-- Footer -->
+<footer class="bg-slate-900 text-slate-400 py-8">
+    <div class="max-w-7xl mx-auto px-4 text-center">
+        <p class="text-sm">&copy; 2025 ContentForge. {{ 'כל הזכויות שמורות.' if lang == 'he' else 'All rights reserved.' }}</p>
+    </div>
+</footer>
+{% endblock %}

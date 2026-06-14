@@ -1,0 +1,91 @@
+{% extends "base.html" %}
+{% block title %}{{ 'פרופיל' if lang == 'he' else 'Profile' }} — ContentForge{% endblock %}
+
+{% block body %}
+{% include "components/navbar.html" %}
+<div class="flex {{ 'flex-row-reverse' if lang == 'he' else '' }}">
+    {% include "components/sidebar.html" %}
+
+    <main class="flex-1 p-6 lg:p-8">
+        <div class="max-w-2xl">
+            <h1 class="text-2xl font-bold text-slate-800 mb-2">
+                {{ 'הגדרות פרופיל' if lang == 'he' else 'Profile Settings' }}
+            </h1>
+            <p class="text-slate-500 mb-6">
+                {{ 'עדכן את הפרטים שלך לתוכן מותאם יותר' if lang == 'he' else 'Update your details for more personalized content' }}
+            </p>
+
+            {% if success %}
+            <div class="bg-green-50 text-green-700 px-4 py-3 rounded-lg text-sm mb-6 flex items-center gap-2">
+                <i data-lucide="check-circle" class="w-4 h-4 shrink-0"></i>
+                {{ success }}
+            </div>
+            {% endif %}
+
+            <div class="bg-white rounded-xl border border-gray-100 p-6">
+                <form method="POST" action="/profile" class="space-y-5">
+                    <!-- Avatar -->
+                    <div class="flex items-center gap-4 pb-5 border-b border-gray-100">
+                        <div class="w-16 h-16 gradient-bg rounded-full flex items-center justify-center">
+                            <span class="text-white text-2xl font-bold">{{ user.name[0] }}</span>
+                        </div>
+                        <div>
+                            <p class="font-semibold text-slate-800">{{ user.name }}</p>
+                            <p class="text-sm text-slate-400">{{ user.email }}</p>
+                        </div>
+                    </div>
+
+                    <!-- Name -->
+                    <div>
+                        <label class="block text-sm font-medium text-slate-700 mb-1">
+                            {{ 'שם מלא' if lang == 'he' else 'Full Name' }}
+                        </label>
+                        <input type="text" name="name" value="{{ user.name }}" required
+                               class="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-transparent outline-none transition">
+                    </div>
+
+                    <!-- Business Name -->
+                    <div>
+                        <label class="block text-sm font-medium text-slate-700 mb-1">
+                            {{ 'שם העסק' if lang == 'he' else 'Business Name' }}
+                        </label>
+                        <input type="text" name="business_name" value="{{ user.business_name or '' }}"
+                               class="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-transparent outline-none transition"
+                               placeholder="{{ 'שם העסק שלך' if lang == 'he' else 'Your business name' }}">
+                    </div>
+
+                    <!-- Business Description -->
+                    <div>
+                        <label class="block text-sm font-medium text-slate-700 mb-1">
+                            {{ 'תיאור העסק' if lang == 'he' else 'Business Description' }}
+                        </label>
+                        <textarea name="business_description" rows="3"
+                                  class="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-transparent outline-none transition resize-none"
+                                  placeholder="{{ 'תאר את העסק שלך בקצרה — יעזור ל-AI ליצור תוכן מדויק יותר' if lang == 'he' else 'Briefly describe your business — helps AI create more accurate content' }}">{{ user.business_description or '' }}</textarea>
+                    </div>
+
+                    <!-- Language -->
+                    <div class="pt-4 border-t border-gray-100">
+                        <p class="text-sm font-medium text-slate-700 mb-2">
+                            {{ 'שפת ממשק' if lang == 'he' else 'Interface Language' }}
+                        </p>
+                        <div class="flex gap-3">
+                            <a href="/set-lang/he" class="flex-1 py-3 text-center rounded-xl text-sm font-medium transition {{ 'bg-indigo-600 text-white' if lang == 'he' else 'bg-gray-100 text-slate-600 hover:bg-gray-200' }}">
+                                עברית
+                            </a>
+                            <a href="/set-lang/en" class="flex-1 py-3 text-center rounded-xl text-sm font-medium transition {{ 'bg-indigo-600 text-white' if lang == 'en' else 'bg-gray-100 text-slate-600 hover:bg-gray-200' }}">
+                                English
+                            </a>
+                        </div>
+                    </div>
+
+                    <button type="submit"
+                            class="w-full py-3 bg-indigo-600 text-white rounded-xl font-semibold hover:bg-indigo-700 transition">
+                        {{ 'שמור שינויים' if lang == 'he' else 'Save Changes' }}
+                    </button>
+                </form>
+            </div>
+        </div>
+    </main>
+</div>
+{% endblock %}

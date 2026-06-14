@@ -1,0 +1,74 @@
+{% extends "base.html" %}
+{% block title %}{{ 'היסטוריה' if lang == 'he' else 'History' }} — ContentForge{% endblock %}
+
+{% block body %}
+{% include "components/navbar.html" %}
+<div class="flex {{ 'flex-row-reverse' if lang == 'he' else '' }}">
+    {% include "components/sidebar.html" %}
+
+    <main class="flex-1 p-6 lg:p-8">
+        <div class="max-w-4xl">
+            <div class="flex items-center justify-between mb-6">
+                <div>
+                    <h1 class="text-2xl font-bold text-slate-800">
+                        {{ 'היסטוריית תוכן' if lang == 'he' else 'Content History' }}
+                    </h1>
+                    <p class="text-slate-500 text-sm mt-1">
+                        {{ 'כל התוכן שיצרת נשמר כאן' if lang == 'he' else 'All your generated content is saved here' }}
+                    </p>
+                </div>
+                <a href="/generate" class="flex items-center gap-2 px-4 py-2 bg-indigo-600 text-white rounded-lg text-sm font-medium hover:bg-indigo-700 transition">
+                    <i data-lucide="plus" class="w-4 h-4"></i>
+                    {{ 'צור תוכן חדש' if lang == 'he' else 'Create New' }}
+                </a>
+            </div>
+
+            {% if contents %}
+            <div class="bg-white rounded-xl border border-gray-100 overflow-hidden">
+                {% for content in contents %}
+                <div class="flex items-center justify-between p-4 hover:bg-gray-50 transition {{ 'border-b border-gray-50' if not loop.last }}">
+                    <a href="/history/{{ content.id }}" class="flex items-center gap-3 flex-1">
+                        {% set type_icons = {'social_post': 'share-2', 'email': 'mail', 'ad': 'megaphone', 'blog': 'file-text', 'product': 'shopping-bag', 'bio': 'user'} %}
+                        {% set type_colors = {'social_post': 'bg-blue-50 text-blue-600', 'email': 'bg-green-50 text-green-600', 'ad': 'bg-orange-50 text-orange-600', 'blog': 'bg-purple-50 text-purple-600', 'product': 'bg-pink-50 text-pink-600', 'bio': 'bg-teal-50 text-teal-600'} %}
+                        {% set icon = type_icons.get(content.content_type, 'file-text') %}
+                        {% set colors = type_colors.get(content.content_type, 'bg-gray-50 text-gray-600') %}
+                        <div class="w-10 h-10 {{ colors.split(' ')[0] }} rounded-lg flex items-center justify-center shrink-0">
+                            <i data-lucide="{{ icon }}" class="w-5 h-5 {{ colors.split(' ')[1] }}"></i>
+                        </div>
+                        <div class="min-w-0">
+                            <p class="text-sm font-medium text-slate-700 truncate">{{ content.title }}</p>
+                            <p class="text-xs text-slate-400">
+                                {% set type_names_he = {'social_post': 'פוסט לסושיאל', 'email': 'אימייל', 'ad': 'מודעה', 'blog': 'בלוג', 'product': 'תיאור מוצר', 'bio': 'ביו'} %}
+                                {% set type_names_en = {'social_post': 'Social Post', 'email': 'Email', 'ad': 'Ad', 'blog': 'Blog', 'product': 'Product', 'bio': 'Bio'} %}
+                                {{ type_names_he.get(content.content_type, content.content_type) if lang == 'he' else type_names_en.get(content.content_type, content.content_type) }}
+                                · {{ content.created_at.strftime('%d/%m/%Y %H:%M') }}
+                            </p>
+                        </div>
+                    </a>
+                    <form method="POST" action="/history/{{ content.id }}/delete" onsubmit="return confirm('{{ 'האם למחוק?' if lang == 'he' else 'Delete this content?' }}')">
+                        <button type="submit" class="p-2 text-slate-400 hover:text-red-500 transition">
+                            <i data-lucide="trash-2" class="w-4 h-4"></i>
+                        </button>
+                    </form>
+                </div>
+                {% endfor %}
+            </div>
+            {% else %}
+            <div class="bg-white rounded-xl border border-gray-100 p-12 text-center">
+                <i data-lucide="inbox" class="w-16 h-16 text-slate-200 mx-auto mb-4"></i>
+                <h3 class="text-lg font-semibold text-slate-600 mb-2">
+                    {{ 'אין תוכן עדיין' if lang == 'he' else 'No content yet' }}
+                </h3>
+                <p class="text-slate-400 text-sm mb-4">
+                    {{ 'התחל ליצור תוכן שיווקי עם AI' if lang == 'he' else 'Start creating marketing content with AI' }}
+                </p>
+                <a href="/generate" class="inline-flex items-center gap-2 px-6 py-3 bg-indigo-600 text-white rounded-lg font-medium hover:bg-indigo-700 transition">
+                    <i data-lucide="sparkles" class="w-5 h-5"></i>
+                    {{ 'צור תוכן ראשון' if lang == 'he' else 'Create First Content' }}
+                </a>
+            </div>
+            {% endif %}
+        </div>
+    </main>
+</div>
+{% endblock %}

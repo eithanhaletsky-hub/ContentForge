@@ -1,0 +1,73 @@
+{% extends "base.html" %}
+{% block title %}{{ content.title }} — ContentForge{% endblock %}
+
+{% block body %}
+{% include "components/navbar.html" %}
+<div class="flex {{ 'flex-row-reverse' if lang == 'he' else '' }}">
+    {% include "components/sidebar.html" %}
+
+    <main class="flex-1 p-6 lg:p-8">
+        <div class="max-w-3xl">
+            <!-- Back button -->
+            <a href="/history" class="inline-flex items-center gap-1 text-sm text-slate-500 hover:text-indigo-600 transition mb-6">
+                <i data-lucide="arrow-{{ 'right' if lang == 'he' else 'left' }}" class="w-4 h-4"></i>
+                {{ 'חזרה להיסטוריה' if lang == 'he' else 'Back to History' }}
+            </a>
+
+            <div class="bg-white rounded-xl border border-gray-100 p-6">
+                <!-- Header -->
+                <div class="flex items-start justify-between mb-6">
+                    <div>
+                        <h1 class="text-xl font-bold text-slate-800 mb-1">{{ content.title }}</h1>
+                        <p class="text-sm text-slate-400">
+                            {% set type_names_he = {'social_post': 'פוסט לסושיאל', 'email': 'אימייל', 'ad': 'מודעה', 'blog': 'בלוג', 'product': 'תיאור מוצר', 'bio': 'ביו'} %}
+                            {% set type_names_en = {'social_post': 'Social Post', 'email': 'Email', 'ad': 'Ad', 'blog': 'Blog', 'product': 'Product', 'bio': 'Bio'} %}
+                            {{ type_names_he.get(content.content_type, content.content_type) if lang == 'he' else type_names_en.get(content.content_type, content.content_type) }}
+                            · {{ content.created_at.strftime('%d/%m/%Y %H:%M') }}
+                            {% if content.platform %} · {{ content.platform }}{% endif %}
+                        </p>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <button onclick="copyContent()" class="flex items-center gap-1 px-3 py-2 text-sm text-indigo-600 bg-indigo-50 rounded-lg hover:bg-indigo-100 transition">
+                            <i data-lucide="copy" class="w-4 h-4"></i>
+                            {{ 'העתק' if lang == 'he' else 'Copy' }}
+                        </button>
+                        <form method="POST" action="/history/{{ content.id }}/delete" onsubmit="return confirm('{{ 'האם למחוק?' if lang == 'he' else 'Delete?' }}')">
+                            <button type="submit" class="flex items-center gap-1 px-3 py-2 text-sm text-red-600 bg-red-50 rounded-lg hover:bg-red-100 transition">
+                                <i data-lucide="trash-2" class="w-4 h-4"></i>
+                                {{ 'מחק' if lang == 'he' else 'Delete' }}
+                            </button>
+                        </form>
+                    </div>
+                </div>
+
+                <!-- Content -->
+                <div id="contentText" class="bg-gray-50 rounded-lg p-6 text-slate-700 whitespace-pre-wrap leading-relaxed">{{ content.generated_text }}</div>
+
+                <!-- Regenerate -->
+                <div class="mt-6 pt-4 border-t border-gray-100">
+                    <a href="/generate?type={{ content.content_type }}" class="inline-flex items-center gap-2 text-sm text-indigo-600 hover:text-indigo-700 transition">
+                        <i data-lucide="refresh-cw" class="w-4 h-4"></i>
+                        {{ 'צור תוכן דומה' if lang == 'he' else 'Generate Similar' }}
+                    </a>
+                </div>
+            </div>
+        </div>
+    </main>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+function copyContent() {
+    const text = document.getElementById('contentText').innerText;
+    navigator.clipboard.writeText(text).then(() => {
+        const btn = event.target.closest('button');
+        const original = btn.innerHTML;
+        btn.innerHTML = '<i data-lucide="check" class="w-4 h-4"></i> {{ "הועתק!" if lang == "he" else "Copied!" }}';
+        lucide.createIcons();
+        setTimeout(() => { btn.innerHTML = original; lucide.createIcons(); }, 2000);
+    });
+}
+</script>
+{% endblock %}

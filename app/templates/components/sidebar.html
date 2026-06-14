@@ -1,0 +1,38 @@
+<aside class="w-64 bg-white border-{{ 'l' if lang == 'he' else 'r' }} border-gray-200 min-h-[calc(100vh-4rem)] p-4 hidden lg:block">
+    <nav class="space-y-1">
+        {% set nav_items = [
+            ("dashboard", "/dashboard", "layout-dashboard", "דשבורד" if lang == "he" else "Dashboard"),
+            ("generator", "/generate", "sparkles", "יצירת תוכן" if lang == "he" else "Generate"),
+            ("history", "/history", "clock", "היסטוריה" if lang == "he" else "History"),
+            ("profile", "/profile", "user", "פרופיל" if lang == "he" else "Profile"),
+        ] %}
+        {% for id, url, icon, label in nav_items %}
+        <a href="{{ url }}"
+           class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition
+                  {{ 'bg-indigo-50 text-indigo-700' if request.url.path.startswith(url) else 'text-slate-500 hover:bg-gray-50 hover:text-slate-700' }}">
+            <i data-lucide="{{ icon }}" class="w-5 h-5"></i>
+            {{ label }}
+        </a>
+        {% endfor %}
+    </nav>
+
+    <div class="mt-8 p-4 bg-gradient-to-br from-indigo-50 to-purple-50 rounded-xl">
+        <p class="text-sm font-semibold text-indigo-800 mb-1">
+            {{ 'סוגי תוכן' if lang == 'he' else 'Content Types' }}
+        </p>
+        {% set types = [
+            ("/generate?type=social_post", "share-2", "פוסט לסושיאל" if lang == "he" else "Social Post"),
+            ("/generate?type=email", "mail", "אימייל" if lang == "he" else "Email"),
+            ("/generate?type=ad", "megaphone", "מודעה" if lang == "he" else "Ad"),
+            ("/generate?type=blog", "file-text", "בלוג" if lang == "he" else "Blog"),
+            ("/generate?type=product", "shopping-bag", "תיאור מוצר" if lang == "he" else "Product"),
+            ("/generate?type=bio", "user", "ביו" if lang == "he" else "Bio"),
+        ] %}
+        {% for url, icon, label in types %}
+        <a href="{{ url }}" class="flex items-center gap-2 px-2 py-1.5 text-xs text-slate-600 hover:text-indigo-600 transition">
+            <i data-lucide="{{ icon }}" class="w-3.5 h-3.5"></i>
+            {{ label }}
+        </a>
+        {% endfor %}
+    </div>
+</aside>

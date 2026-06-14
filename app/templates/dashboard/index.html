@@ -1,0 +1,107 @@
+{% extends "base.html" %}
+{% block title %}{{ 'דשבורד' if lang == 'he' else 'Dashboard' }} — ContentForge{% endblock %}
+
+{% block body %}
+{% include "components/navbar.html" %}
+<div class="flex {{ 'flex-row-reverse' if lang == 'he' else '' }}">
+    {% include "components/sidebar.html" %}
+
+    <main class="flex-1 p-6 lg:p-8">
+        <!-- Welcome -->
+        <div class="mb-8">
+            <h1 class="text-2xl font-bold text-slate-800">
+                {{ 'שלום' if lang == 'he' else 'Hello' }}, {{ user.name }} 👋
+            </h1>
+            <p class="text-slate-500 mt-1">
+                {{ 'מה תרצה ליצור היום?' if lang == 'he' else 'What would you like to create today?' }}
+            </p>
+        </div>
+
+        <!-- Stats -->
+        <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+            <div class="bg-white rounded-xl p-5 border border-gray-100">
+                <div class="flex items-center gap-3 mb-2">
+                    <div class="w-10 h-10 bg-indigo-50 rounded-lg flex items-center justify-center">
+                        <i data-lucide="file-text" class="w-5 h-5 text-indigo-600"></i>
+                    </div>
+                </div>
+                <p class="text-2xl font-bold text-slate-800">{{ total_contents }}</p>
+                <p class="text-xs text-slate-500">{{ 'סה"כ תוכן' if lang == 'he' else 'Total Content' }}</p>
+            </div>
+            <div class="bg-white rounded-xl p-5 border border-gray-100">
+                <div class="flex items-center gap-3 mb-2">
+                    <div class="w-10 h-10 bg-blue-50 rounded-lg flex items-center justify-center">
+                        <i data-lucide="share-2" class="w-5 h-5 text-blue-600"></i>
+                    </div>
+                </div>
+                <p class="text-2xl font-bold text-slate-800">{{ type_counts.get('social_post', 0) }}</p>
+                <p class="text-xs text-slate-500">{{ 'פוסטים' if lang == 'he' else 'Posts' }}</p>
+            </div>
+            <div class="bg-white rounded-xl p-5 border border-gray-100">
+                <div class="flex items-center gap-3 mb-2">
+                    <div class="w-10 h-10 bg-green-50 rounded-lg flex items-center justify-center">
+                        <i data-lucide="mail" class="w-5 h-5 text-green-600"></i>
+                    </div>
+                </div>
+                <p class="text-2xl font-bold text-slate-800">{{ type_counts.get('email', 0) }}</p>
+                <p class="text-xs text-slate-500">{{ 'אימיילים' if lang == 'he' else 'Emails' }}</p>
+            </div>
+            <div class="bg-white rounded-xl p-5 border border-gray-100">
+                <div class="flex items-center gap-3 mb-2">
+                    <div class="w-10 h-10 bg-orange-50 rounded-lg flex items-center justify-center">
+                        <i data-lucide="megaphone" class="w-5 h-5 text-orange-600"></i>
+                    </div>
+                </div>
+                <p class="text-2xl font-bold text-slate-800">{{ type_counts.get('ad', 0) + type_counts.get('blog', 0) + type_counts.get('product', 0) + type_counts.get('bio', 0) }}</p>
+                <p class="text-xs text-slate-500">{{ 'תוכן נוסף' if lang == 'he' else 'Other Content' }}</p>
+            </div>
+        </div>
+
+        <!-- Quick Actions -->
+        <h2 class="text-lg font-semibold text-slate-800 mb-4">
+            {{ 'יצירה מהירה' if lang == 'he' else 'Quick Create' }}
+        </h2>
+        <div class="grid grid-cols-2 lg:grid-cols-3 gap-4 mb-8">
+            {% set quick_actions = [
+                ("social_post", "share-2", "פוסט לסושיאל" if lang == "he" else "Social Post", "bg-blue-50", "text-blue-600", "border-blue-100"),
+                ("email", "mail", "אימייל שיווקי" if lang == "he" else "Marketing Email", "bg-green-50", "text-green-600", "border-green-100"),
+                ("ad", "megaphone", "מודעה" if lang == "he" else "Ad", "bg-orange-50", "text-orange-600", "border-orange-100"),
+                ("blog", "file-text", "מאמר בלוג" if lang == "he" else "Blog Article", "bg-purple-50", "text-purple-600", "border-purple-100"),
+                ("product", "shopping-bag", "תיאור מוצר" if lang == "he" else "Product Description", "bg-pink-50", "text-pink-600", "border-pink-100"),
+                ("bio", "user", "ביו / אודות" if lang == "he" else "Bio / About", "bg-teal-50", "text-teal-600", "border-teal-100"),
+            ] %}
+            {% for type_id, icon, label, bg, color, border in quick_actions %}
+            <a href="/generate?type={{ type_id }}" class="flex items-center gap-3 p-4 bg-white rounded-xl border {{ border }} card-hover">
+                <div class="w-10 h-10 {{ bg }} rounded-lg flex items-center justify-center shrink-0">
+                    <i data-lucide="{{ icon }}" class="w-5 h-5 {{ color }}"></i>
+                </div>
+                <span class="text-sm font-medium text-slate-700">{{ label }}</span>
+            </a>
+            {% endfor %}
+        </div>
+
+        <!-- Recent Content -->
+        {% if recent_contents %}
+        <h2 class="text-lg font-semibold text-slate-800 mb-4">
+            {{ 'תוכן אחרון' if lang == 'he' else 'Recent Content' }}
+        </h2>
+        <div class="bg-white rounded-xl border border-gray-100 overflow-hidden">
+            {% for content in recent_contents %}
+            <a href="/history/{{ content.id }}" class="flex items-center justify-between p-4 hover:bg-gray-50 transition {{ 'border-b border-gray-50' if not loop.last }}">
+                <div class="flex items-center gap-3">
+                    <div class="w-8 h-8 bg-indigo-50 rounded-lg flex items-center justify-center">
+                        <i data-lucide="file-text" class="w-4 h-4 text-indigo-600"></i>
+                    </div>
+                    <div>
+                        <p class="text-sm font-medium text-slate-700">{{ content.title }}</p>
+                        <p class="text-xs text-slate-400">{{ content.content_type }} · {{ content.created_at.strftime('%d/%m/%Y %H:%M') }}</p>
+                    </div>
+                </div>
+                <i data-lucide="chevron-{{ 'left' if lang == 'he' else 'right' }}" class="w-4 h-4 text-slate-400"></i>
+            </a>
+            {% endfor %}
+        </div>
+        {% endif %}
+    </main>
+</div>
+{% endblock %}

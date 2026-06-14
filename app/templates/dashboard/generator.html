@@ -1,0 +1,222 @@
+{% extends "base.html" %}
+{% block title %}{{ 'יצירת תוכן' if lang == 'he' else 'Generate Content' }} — ContentForge{% endblock %}
+
+{% block body %}
+{% include "components/navbar.html" %}
+<div class="flex {{ 'flex-row-reverse' if lang == 'he' else '' }}">
+    {% include "components/sidebar.html" %}
+
+    <main class="flex-1 p-6 lg:p-8">
+        <div class="max-w-4xl">
+            <h1 class="text-2xl font-bold text-slate-800 mb-2">
+                {{ 'יצירת תוכן' if lang == 'he' else 'Generate Content' }}
+            </h1>
+            <p class="text-slate-500 mb-6">
+                {{ 'בחר סוג תוכן, מלא את הפרטים וה-AI ייצור עבורך תוכן מקצועי' if lang == 'he' else 'Choose content type, fill in details and AI will generate professional content for you' }}
+            </p>
+
+            <!-- Content Type Tabs -->
+            <div class="flex flex-wrap gap-2 mb-6">
+                {% for type_id, info in content_types.items() %}
+                <a href="/generate?type={{ type_id }}"
+                   class="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition
+                          {{ 'bg-indigo-600 text-white' if content_type == type_id else 'bg-white text-slate-600 border border-gray-200 hover:border-indigo-300' }}">
+                    <i data-lucide="{{ info.icon }}" class="w-4 h-4"></i>
+                    {{ info[lang] }}
+                </a>
+                {% endfor %}
+            </div>
+
+            {% if error %}
+            <div class="bg-red-50 text-red-700 px-4 py-3 rounded-lg text-sm mb-6 flex items-center gap-2">
+                <i data-lucide="alert-circle" class="w-4 h-4 shrink-0"></i>
+                {{ error }}
+            </div>
+            {% endif %}
+
+            <div class="grid lg:grid-cols-2 gap-6">
+                <!-- Form -->
+                <div class="bg-white rounded-xl border border-gray-100 p-6">
+                    <form method="POST" action="/generate" id="generateForm">
+                        <input type="hidden" name="content_type" value="{{ content_type }}">
+
+                        <div class="space-y-4">
+                            <!-- Topic -->
+                            <div>
+                                <label class="block text-sm font-medium text-slate-700 mb-1">
+                                    {{ 'נושא / מוצר *' if lang == 'he' else 'Topic / Product *' }}
+                                </label>
+                                <input type="text" name="topic" required
+                                       class="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-transparent outline-none transition"
+                                       placeholder="{{ 'למשל: השקת מוצר חדש' if lang == 'he' else 'e.g.: New product launch' }}">
+                            </div>
+
+                            <!-- Tone -->
+                            <div>
+                                <label class="block text-sm font-medium text-slate-700 mb-1">
+                                    {{ 'טון' if lang == 'he' else 'Tone' }}
+                                </label>
+                                <select name="tone" class="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-transparent outline-none transition bg-white">
+                                    {% set tones = [
+                                        ("professional", "מקצועי" if lang == "he" else "Professional"),
+                                        ("friendly", "ידידותי" if lang == "he" else "Friendly"),
+                                        ("humorous", "הומוריסטי" if lang == "he" else "Humorous"),
+                                        ("formal", "רשמי" if lang == "he" else "Formal"),
+                                        ("persuasive", "שכנועי" if lang == "he" else "Persuasive"),
+                                        ("inspiring", "מעורר השראה" if lang == "he" else "Inspiring"),
+                                    ] %}
+                                    {% for val, label in tones %}
+                                    <option value="{{ val }}">{{ label }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+
+                            <!-- Audience -->
+                            <div>
+                                <label class="block text-sm font-medium text-slate-700 mb-1">
+                                    {{ 'קהל יעד' if lang == 'he' else 'Target Audience' }}
+                                </label>
+                                <input type="text" name="audience"
+                                       class="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-transparent outline-none transition"
+                                       placeholder="{{ 'למשל: בעלי עסקים קטנים' if lang == 'he' else 'e.g.: Small business owners' }}">
+                            </div>
+
+                            <!-- Platform (for social/ad/product) -->
+                            {% if content_type in ['social_post', 'ad', 'product'] %}
+                            <div>
+                                <label class="block text-sm font-medium text-slate-700 mb-1">
+                                    {{ 'פלטפורמה' if lang == 'he' else 'Platform' }}
+                                </label>
+                                <select name="platform" class="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-transparent outline-none transition bg-white">
+                                    {% if content_type == 'social_post' %}
+                                        {% set platforms = [("Instagram", "Instagram"), ("Facebook", "Facebook"), ("LinkedIn", "LinkedIn"), ("Twitter/X", "Twitter/X")] %}
+                                    {% elif content_type == 'ad' %}
+                                        {% set platforms = [("Google Ads", "Google Ads"), ("Facebook Ads", "Facebook Ads"), ("Instagram Ads", "Instagram Ads")] %}
+                                    {% elif content_type == 'product' %}
+                                        {% set platforms = [("general", "כללי" if lang == "he" else "General"), ("Amazon", "Amazon"), ("eBay", "eBay"), ("Shopify", "Shopify")] %}
+                                    {% endif %}
+                                    {% for val, label in platforms %}
+                                    <option value="{{ val }}">{{ label }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                            {% endif %}
+
+                            <!-- Email type -->
+                            {% if content_type == 'email' %}
+                            <div>
+                                <label class="block text-sm font-medium text-slate-700 mb-1">
+                                    {{ 'סוג אימייל' if lang == 'he' else 'Email Type' }}
+                                </label>
+                                <select name="email_type" class="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-transparent outline-none transition bg-white">
+                                    {% set email_types = [
+                                        ("newsletter", "ניוזלטר" if lang == "he" else "Newsletter"),
+                                        ("promotion", "מבצע/הנחה" if lang == "he" else "Promotion"),
+                                        ("welcome", "ברוכים הבאים" if lang == "he" else "Welcome"),
+                                        ("follow_up", "פולו-אפ" if lang == "he" else "Follow-up"),
+                                        ("announcement", "הודעה" if lang == "he" else "Announcement"),
+                                    ] %}
+                                    {% for val, label in email_types %}
+                                    <option value="{{ val }}">{{ label }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                            {% endif %}
+
+                            <!-- Keywords (blog) -->
+                            {% if content_type == 'blog' %}
+                            <div>
+                                <label class="block text-sm font-medium text-slate-700 mb-1">
+                                    {{ 'מילות מפתח (SEO)' if lang == 'he' else 'Keywords (SEO)' }}
+                                </label>
+                                <input type="text" name="keywords"
+                                       class="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-transparent outline-none transition"
+                                       placeholder="{{ 'מופרדות בפסיקים' if lang == 'he' else 'Separated by commas' }}">
+                            </div>
+                            {% endif %}
+
+                            <!-- Category (product/bio) -->
+                            {% if content_type in ['product', 'bio'] %}
+                            <div>
+                                <label class="block text-sm font-medium text-slate-700 mb-1">
+                                    {{ 'קטגוריה / תחום' if lang == 'he' else 'Category / Industry' }}
+                                </label>
+                                <input type="text" name="category"
+                                       class="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-transparent outline-none transition"
+                                       placeholder="{{ 'למשל: טכנולוגיה, אופנה' if lang == 'he' else 'e.g.: Technology, Fashion' }}">
+                            </div>
+                            {% endif %}
+
+                            <!-- Additional Details -->
+                            <div>
+                                <label class="block text-sm font-medium text-slate-700 mb-1">
+                                    {{ 'פרטים נוספים' if lang == 'he' else 'Additional Details' }}
+                                </label>
+                                <textarea name="details" rows="3"
+                                          class="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-transparent outline-none transition resize-none"
+                                          placeholder="{{ 'מידע נוסף שיעזור ל-AI ליצור תוכן טוב יותר...' if lang == 'he' else 'Additional info to help AI create better content...' }}"></textarea>
+                            </div>
+
+                            <button type="submit" id="generateBtn"
+                                    class="w-full py-3 bg-indigo-600 text-white rounded-xl font-semibold hover:bg-indigo-700 transition flex items-center justify-center gap-2">
+                                <i data-lucide="sparkles" class="w-5 h-5"></i>
+                                {{ 'צור תוכן' if lang == 'he' else 'Generate Content' }}
+                            </button>
+                        </div>
+                    </form>
+                </div>
+
+                <!-- Result -->
+                <div class="bg-white rounded-xl border border-gray-100 p-6">
+                    <div class="flex items-center justify-between mb-4">
+                        <h2 class="text-lg font-semibold text-slate-800">
+                            {{ 'תוצאה' if lang == 'he' else 'Result' }}
+                        </h2>
+                        {% if result %}
+                        <button onclick="copyResult()" class="flex items-center gap-1 text-sm text-indigo-600 hover:text-indigo-700 transition">
+                            <i data-lucide="copy" class="w-4 h-4"></i>
+                            {{ 'העתק' if lang == 'he' else 'Copy' }}
+                        </button>
+                        {% endif %}
+                    </div>
+
+                    {% if result %}
+                    <div id="resultText" class="prose prose-sm max-w-none text-slate-700 whitespace-pre-wrap leading-relaxed bg-gray-50 rounded-lg p-4 max-h-[500px] overflow-y-auto">{{ result }}</div>
+                    <div class="mt-4 flex gap-2">
+                        <a href="/history/{{ content_id }}" class="flex-1 py-2 text-center text-sm bg-indigo-50 text-indigo-700 rounded-lg hover:bg-indigo-100 transition">
+                            {{ 'צפה בהיסטוריה' if lang == 'he' else 'View in History' }}
+                        </a>
+                    </div>
+                    {% else %}
+                    <div class="flex flex-col items-center justify-center h-64 text-slate-400">
+                        <i data-lucide="sparkles" class="w-12 h-12 mb-3 opacity-30"></i>
+                        <p class="text-sm">{{ 'התוכן שייווצר יופיע כאן' if lang == 'he' else 'Generated content will appear here' }}</p>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </main>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+function copyResult() {
+    const text = document.getElementById('resultText').innerText;
+    navigator.clipboard.writeText(text).then(() => {
+        const btn = event.target.closest('button');
+        const original = btn.innerHTML;
+        btn.innerHTML = '<i data-lucide="check" class="w-4 h-4"></i> {{ "הועתק!" if lang == "he" else "Copied!" }}';
+        lucide.createIcons();
+        setTimeout(() => { btn.innerHTML = original; lucide.createIcons(); }, 2000);
+    });
+}
+
+document.getElementById('generateForm').addEventListener('submit', function() {
+    const btn = document.getElementById('generateBtn');
+    btn.disabled = true;
+    btn.innerHTML = `<svg class="animate-spin w-5 h-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path></svg> {{ 'יוצר תוכן...' if lang == 'he' else 'Generating...' }}`;
+});
+</script>
+{% endblock %}
